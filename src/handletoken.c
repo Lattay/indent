@@ -713,9 +713,21 @@ static void handle_token_unary_op(
  */
 
 static void handle_token_binary_op(
+    int            * dec_ind,
     const bb_code_ty can_break)
 {
     char           * t_ptr;
+
+    /*
+     * the token is actually a pointer star used after a custom type
+     */
+    if ((*token == '*')                   &&
+        parser_state_tos->in_stmt         && 
+        parser_state_tos->in_decl)
+    {
+        handle_token_unary_op(dec_ind, can_break);
+        return;
+    }
             
     if (parser_state_tos->want_blank        || 
         (e_code > s_code && *e_code != ' '))
@@ -2251,12 +2263,12 @@ extern void handle_the_token(
 
     case unary_op:
       /* this could be any unary operation */
-       handle_token_unary_op( dec_ind, can_break);
+       handle_token_unary_op(dec_ind, can_break);
        break;
 
     case binary_op:
       /* any binary operation */
-       handle_token_binary_op(can_break);
+       handle_token_binary_op(dec_ind, can_break);
        break;
 
     case postop:
